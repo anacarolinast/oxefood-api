@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.RestController;
 import br.com.ifpe.oxefood.modelo.produto.Produto;
 import br.com.ifpe.oxefood.modelo.produto.ProdutoService;
 
+import io.swagger.v3.oas.annotations.Operation;
+
 @RestController
 @RequestMapping("/api/produto")
 @CrossOrigin
@@ -25,6 +27,11 @@ public class ProdutoController {
     
     @Autowired
     private ProdutoService produtoService;
+
+    @Operation(
+       summary = "Serviço responsável por salvar um cliente no sistema.",
+       description = "Exemplo de descrição de um endpoint responsável por inserir um cliente no sistema."
+   )
 
     @PostMapping 
     public ResponseEntity<Produto> save (@RequestBody ProdutoRequest request) {

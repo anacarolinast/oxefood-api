@@ -17,6 +17,8 @@ import java.util.List;
 import br.com.ifpe.oxefood.modelo.cliente.Cliente;
 import br.com.ifpe.oxefood.modelo.cliente.ClienteService;
 
+import io.swagger.v3.oas.annotations.Operation;
+
 @RestController
 @RequestMapping("/api/cliente")
 @CrossOrigin
@@ -24,6 +26,11 @@ public class ClienteController {
 
     @Autowired
     private ClienteService clienteService;
+
+    @Operation(
+       summary = "Serviço responsável por salvar um cliente no sistema.",
+       description = "Exemplo de descrição de um endpoint responsável por inserir um cliente no sistema."
+   )
 
     @PostMapping
     public ResponseEntity<Cliente> save(@RequestBody ClienteRequest request) {
