@@ -95,7 +95,7 @@ public class ClienteService {
         endereco.setBairro(enderecoAlterado.getBairro());
         endereco.setCep(enderecoAlterado.getCep());
         endereco.setCidade(enderecoAlterado.getCidade());
-        endereco.setEstado(enderecoAlterado.getEstado());
+        endereco.setUf(enderecoAlterado.getUf());
         endereco.setComplemento(enderecoAlterado.getComplemento());
 
         return enderecoClienteRepository.save(endereco);

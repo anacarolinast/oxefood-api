@@ -47,7 +47,7 @@ public class EnderecoCliente extends EntidadeAuditavel {
     private String cidade;
 
     @Column
-    private String estado;
+    private String uf;
 
     @Column
     private String complemento;

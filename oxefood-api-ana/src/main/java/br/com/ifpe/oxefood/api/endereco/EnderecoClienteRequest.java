@@ -22,7 +22,7 @@ public class EnderecoClienteRequest {
 
     private String cidade;
 
-    private String estado;
+    private String uf;
 
     private String complemento;
 
@@ -34,7 +34,7 @@ public class EnderecoClienteRequest {
                 .bairro(bairro)
                 .cep(cep)
                 .cidade(cidade)
-                .estado(estado)
+                .uf(uf)
                 .complemento(complemento)
                 .build();
     }
