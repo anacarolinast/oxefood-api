@@ -18,20 +18,22 @@ public class ProdutoService {
     @ResponseStatus(code = HttpStatus.INTERNAL_SERVER_ERROR)
     public class ProdutoException extends RuntimeException {
 
-        public static final String MSG_VALOR_MINIMO_PRODUTO = "Não é permitido inserir produtos com valores inferiores a R$ 10.";
+        public static final String MSG_VALOR_MINIMO_PRODUTO = "Não é permitido que sejam inseridos produtos com um valor menor que R$20 e maior que R$100";
 
         public ProdutoException(String msg) {
-
             super(String.format(msg));
+        }
+    }
+
+    private void validarPrecoProduto(Double valorUnitario) {
+        if (valorUnitario < 20 || valorUnitario > 100) {
+            throw new ProdutoException(ProdutoException.MSG_VALOR_MINIMO_PRODUTO);
         }
     }
 
     @Transactional
     public Produto save(Produto produto) {
-        if (produto.getValorUnitario() < 10) {
-            throw new ProdutoException(ProdutoException.MSG_VALOR_MINIMO_PRODUTO);
-        }
-
+        validarPrecoProduto(produto.getValorUnitario());
         produto.setHabilitado(Boolean.TRUE);
         produto.setVersao(1L);
         produto.setDataCriacao(LocalDate.now());
@@ -39,19 +41,19 @@ public class ProdutoService {
     }
 
     public List<Produto> listarTodos() {
-
         return repository.findAll();
     }
 
     public Produto obterPorID(Long id) {
-
-        return repository.findById(id).get();
+        return repository.findById(id).orElseThrow(() -> new RuntimeException("Produto não encontrado"));
     }
 
     @Transactional
     public void update(Long id, Produto produtoAlterado) {
-
-        Produto produto = repository.findById(id).get();
+        Produto produto = repository.findById(id).orElseThrow(() -> new RuntimeException("Produto não encontrado"));
+        
+        validarPrecoProduto(produtoAlterado.getValorUnitario());
+        
         produto.setCategoria(produtoAlterado.getCategoria());
         produto.setTitulo(produtoAlterado.getTitulo());
         produto.setCodigo(produtoAlterado.getCodigo());
@@ -65,11 +67,39 @@ public class ProdutoService {
 
     @Transactional
     public void delete(Long id) {
-
-        Produto produto = repository.findById(id).get();
+        Produto produto = repository.findById(id).orElseThrow(() -> new RuntimeException("Produto não encontrado"));
         produto.setHabilitado(Boolean.FALSE);
         produto.setVersao(produto.getVersao() + 1);
 
         repository.save(produto);
     }
+
+    public List<Produto> filtrar(String codigo, String titulo, Long idCategoria) {
+
+        List<Produto> listaProdutos = repository.findAll();
+ 
+        if ((codigo != null && !"".equals(codigo)) &&
+            (titulo == null || "".equals(titulo)) &&
+            (idCategoria == null)) {
+                listaProdutos = repository.consultarPorCodigo(codigo);
+        } else if (
+            (codigo == null || "".equals(codigo)) &&
+            (titulo != null && !"".equals(titulo)) &&
+            (idCategoria == null)) {    
+                listaProdutos = repository.findByTituloContainingIgnoreCaseOrderByTituloAsc(titulo);
+        } else if (
+            (codigo == null || "".equals(codigo)) &&
+            (titulo == null || "".equals(titulo)) &&
+            (idCategoria != null)) {
+                listaProdutos = repository.consultarPorCategoria(idCategoria); 
+        } else if (
+            (codigo == null || "".equals(codigo)) &&
+            (titulo != null && !"".equals(titulo)) &&
+            (idCategoria != null)) {
+                listaProdutos = repository.consultarPorTituloECategoria(titulo, idCategoria); 
+        }
+ 
+        return listaProdutos;
+ }
+ 
 }
