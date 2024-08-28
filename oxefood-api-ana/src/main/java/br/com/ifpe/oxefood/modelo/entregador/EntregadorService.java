@@ -3,12 +3,23 @@ package br.com.ifpe.oxefood.modelo.entregador;
 import jakarta.transaction.Transactional;
 import java.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class EntregadorService {
+
+    @ResponseStatus(code = HttpStatus.NOT_FOUND)
+    public class EntidadeNaoEncontradaException extends RuntimeException {
+
+        public EntidadeNaoEncontradaException(String entidade, Long id) {
+            super(String.format("Não foi encontrado(a) um(a) %s com o id %s", entidade, id.toString()));
+        }
+    }
 
     @Autowired
     private EntregadorRepository repository;
@@ -27,8 +38,14 @@ public class EntregadorService {
     }
 
     public Entregador obterPorID(Long id) {
+        Optional<Entregador> consulta = repository.findById(id);
+  
+       if (consulta.isPresent()) {
+           return consulta.get();
+       } else {
+           throw new EntidadeNaoEncontradaException("Cliente", id);
+       }
 
-        return repository.findById(id).get();
     }
 
     @Transactional

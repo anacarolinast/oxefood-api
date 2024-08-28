@@ -2,17 +2,29 @@ package br.com.ifpe.oxefood.modelo.cliente;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import jakarta.transaction.Transactional;
 import java.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
 import br.com.ifpe.oxefood.modelo.endereco.EnderecoCliente;
 import br.com.ifpe.oxefood.modelo.endereco.EnderecoClienteRepository;
+import br.com.ifpe.oxefood.modelo.mensagens.EmailService;
 
 @Service
 public class ClienteService {
+
+    @ResponseStatus(code = HttpStatus.NOT_FOUND)
+    public class EntidadeNaoEncontradaException extends RuntimeException {
+
+        public EntidadeNaoEncontradaException(String entidade, Long id) {
+            super(String.format("Não foi encontrado(a) um(a) %s com o id %s", entidade, id.toString()));
+        }
+    }
 
     @Autowired
     private ClienteRepository repository;
@@ -20,14 +32,22 @@ public class ClienteService {
     @Autowired
     private EnderecoClienteRepository enderecoClienteRepository;
 
-    @Transactional
-    public Cliente save(Cliente cliente) {
+    @Autowired
+    private EmailService emailService;
 
-        cliente.setHabilitado(Boolean.TRUE);
-        cliente.setVersao(1L);
-        cliente.setDataCriacao(LocalDate.now());
-        return repository.save(cliente);
-    }
+    @Transactional
+   public Cliente save(Cliente cliente) {
+
+       cliente.setHabilitado(Boolean.TRUE);
+       cliente.setVersao(1L);
+       cliente.setDataCriacao(LocalDate.now());
+       Cliente clienteSalvo = repository.save(cliente);
+
+       emailService.enviarEmailConfirmacaoCadastroCliente(clienteSalvo);
+
+       return clienteSalvo;
+   }
+
 
     public List<Cliente> listarTodos() {
 
@@ -36,7 +56,13 @@ public class ClienteService {
 
     public Cliente obterPorID(Long id) {
 
-        return repository.findById(id).get();
+        Optional<Cliente> consulta = repository.findById(id);
+
+        if (consulta.isPresent()) {
+            return consulta.get();
+        } else {
+            throw new EntidadeNaoEncontradaException("Cliente", id);
+        }
     }
 
     @Transactional
