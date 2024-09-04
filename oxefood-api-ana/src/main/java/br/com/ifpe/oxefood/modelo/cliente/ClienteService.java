@@ -54,10 +54,10 @@ public class ClienteService {
 
     @Transactional
     public Cliente save(Cliente cliente, Usuario usuarioLogado) {
-        // if (!telefoneComPrefixo81(cliente.getFoneCelular())
-        //         || (cliente.getFoneFixo() != null && !telefoneComPrefixo81(cliente.getFoneFixo()))) {
-        //     throw new TelefoneInvalidoException("O telefone deve ter o prefixo 81.");
-        // }
+        if (!telefoneComPrefixo81(cliente.getFoneCelular())
+                || (cliente.getFoneFixo() != null && !telefoneComPrefixo81(cliente.getFoneFixo()))) {
+            throw new TelefoneInvalidoException("O telefone deve ter o prefixo 81.");
+        }
 
         usuarioService.save(cliente.getUsuario());
 

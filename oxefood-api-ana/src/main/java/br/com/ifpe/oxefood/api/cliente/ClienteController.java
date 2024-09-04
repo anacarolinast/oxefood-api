@@ -67,10 +67,8 @@ public class ClienteController {
 
     @PutMapping("/{id}")
 public ResponseEntity<Cliente> update(@PathVariable("id") Long id, @RequestBody ClienteRequest clienteRequest, HttpServletRequest request) {
-    // Obtém o usuário logado
     Usuario usuario = usuarioService.obterUsuarioLogado(request);
     
-    // Atualiza o cliente
     clienteService.update(id, clienteRequest.build(), usuario);
     
     return ResponseEntity.ok().build();
